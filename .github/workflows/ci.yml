@@ -1,9 +1,9 @@
 name: Hackathon CI/CD
 
 on:
-  push:
-    branches:
-      - raghav-demo
+  # push:
+  #   branches:
+  #     - raghav-demo
   workflow_dispatch:
 
 jobs:

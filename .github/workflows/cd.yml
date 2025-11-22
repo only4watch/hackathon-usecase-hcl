@@ -1,0 +1,120 @@
+name: GKE CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - raghav-demo
+  workflow_dispatch:
+
+env:
+  TF_VERSION: 1.7.5
+  REGION: ${{ secrets.GCP_REGION }}
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # =============================
+    # CHECKOUT CODE
+    # =============================
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # =============================
+    # AUTHENTICATE TO GOOGLE CLOUD
+    # =============================
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up gcloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker for Artifact Registry
+      run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+    # =============================
+    # TERRAFORM INIT + APPLY (CREATE GKE CLUSTER)
+    # # =============================
+    # - name: Setup Terraform
+    #   uses: hashicorp/setup-terraform@v2
+    #   with:
+    #     terraform_version: ${{ env.TF_VERSION }}
+
+    # - name: Terraform Init
+    #   working-directory: terraform
+    #   run: terraform init
+
+    # - name: Terraform Apply
+    #   working-directory: terraform
+    #   run: terraform apply -auto-approve
+
+    # =============================
+    # BUILD & PUSH DOCKER IMAGES
+    # =============================
+    - name: Build & Push patient-service
+      run: |
+        IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/patient-service:latest"
+        cd $GITHUB_WORKSPACE/patient-service/src
+        docker build -t "$IMAGE" ./patient-service
+        docker push "$IMAGE"
+
+    - name: Build & Push order-service
+      run: |
+        IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/order-service:latest"
+        cd $GITHUB_WORKSPACE/order-service
+        docker build -t "$IMAGE" ./order-service
+        docker push "$IMAGE"
+
+    - name: Build & Push application-service
+      run: |
+        IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/application-service:latest"
+        cd $GITHUB_WORKSPACE/application-service/src
+        docker build -t "$IMAGE" ./application-service
+        docker push "$IMAGE"
+
+    # =============================
+    # FETCH GKE CREDENTIALS
+    # =============================
+    - name: Get GKE credentials
+      uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: "gke-hackathon"
+        location: ${{ env.REGION }}
+        project_id: ${{ env.PROJECT_ID }}
+
+    # =============================
+    # DEPLOY K8s MANIFESTS
+    # =============================
+    - name: Deploy all services
+      run: |
+        kubectl apply -f k8s/patient-service.yaml
+        kubectl apply -f k8s/order-service.yaml
+        kubectl apply -f k8s/application-service.yaml
+        kubectl apply -f k8s/ingress.yaml
+
+    # =============================
+    # PATCH IMAGES IN DEPLOYMENTS
+    # =============================
+    - name: Patch Deployments with new images
+      run: |
+        kubectl set image deployment/patient-service \
+          patient-service=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/patient-service:latest
+
+        kubectl set image deployment/order-service \
+          order-service=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/order-service:latest
+
+        kubectl set image deployment/application-service \
+          application-service=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/application-service:latest
+
+    # =============================
+    # VERIFY DEPLOYMENT STATUS
+    # =============================
+    - name: Verify deployments
+      run: |
+        kubectl get pods -A
+        kubectl get svc -A
+        kubectl get ingress -A
