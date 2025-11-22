@@ -56,9 +56,12 @@ jobs:
     # -----------------------------
     - name: Build Docker images
       run: |
-        docker build -t patient-service:latest $GITHUB_WORKSPACE/patient-service
-        docker build -t order-service:latest $GITHUB_WORKSPACE/order-service
-        docker build -t application-service:latest $GITHUB_WORKSPACE/application-service/src
+        cd $GITHUB_WORKSPACE/patient-service/src
+        docker build -t patient-service:latest .
+        cd $GITHUB_WORKSPACE/order-service
+        docker build -t order-service:latest .
+        cd $GITHUB_WORKSPACE/application-service/src
+        docker build -t application-service:latest .
 
 
     # -----------------------------
