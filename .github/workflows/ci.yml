@@ -54,20 +54,12 @@ jobs:
     # -----------------------------
     # BUILD DOCKER IMAGES FOR 3 SERVICES
     # -----------------------------
-    # - name: Build Docker images
-    #   run: |
-    #     docker build -t patient-service:latest $WORKSPACE/patient-service
-    #     docker build -t order-service:latest $WORKSPACE/order-service
-    #     docker build -t appointment-service:latest $WORKSPACE/appointment-service
+    - name: Build Docker images
+      run: |
+        docker build -t patient-service:latest $GITHUB_WORKSPACE/patient-service
+        docker build -t order-service:latest $GITHUB_WORKSPACE/order-service
+        docker build -t application-service:latest $GITHUB_WORKSPACE/application-service/src
 
-    - name: Build patient-service
-      run: docker build -t patient-service:latest ./patient-service
-
-    - name: Build order-service
-      run: docker build -t order-service:latest ./order-service
-
-    - name: Build appointment-service
-      run: docker build -t appointment-service:latest ./appointment-service
 
     # -----------------------------
     # LOAD IMAGES INTO KIND CLUSTER
