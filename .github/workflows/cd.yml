@@ -59,21 +59,21 @@ jobs:
       run: |
         IMAGE="asia-south1-docker.pkg.dev/fluted-karma-476914-f7/hcl/patient-service:latest"
         cd $GITHUB_WORKSPACE/patient-service/src
-        docker build -t "$IMAGE" ./patient-service
+        docker build -t "$IMAGE" .
         docker push "$IMAGE"
 
     - name: Build & Push order-service
       run: |
         IMAGE="asia-south1-docker.pkg.dev/fluted-karma-476914-f7/hcl/order-service:latest"
         cd $GITHUB_WORKSPACE/order-service
-        docker build -t "$IMAGE" ./order-service
+        docker build -t "$IMAGE" .
         docker push "$IMAGE"
 
     - name: Build & Push application-service
       run: |
         IMAGE="asia-south1-docker.pkg.dev/fluted-karma-476914-f7/hcl/application-service:latest"
         cd $GITHUB_WORKSPACE/application-service/src
-        docker build -t "$IMAGE" ./application-service
+        docker build -t "$IMAGE" .
         docker push "$IMAGE"
 
     # =============================
