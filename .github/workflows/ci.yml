@@ -71,7 +71,7 @@ jobs:
       run: |
         kind load docker-image patient-service:latest --name hcl-hackathon
         kind load docker-image order-service:latest --name hcl-hackathon
-        kind load docker-image appointment-service:latest --name hcl-hackathon
+        kind load docker-image application-service:latest --name hcl-hackathon
 
     # -----------------------------
     # VALIDATE KUBECTL CONTEXT
