@@ -56,9 +56,10 @@ jobs:
     # -----------------------------
     - name: Build Docker images
       run: |
-        docker build -t patient-service:latest ./patient-service
-        docker build -t order-service:latest ./order-service
-        docker build -t appointment-service:latest ./appointment-service
+        docker build -t patient-service:latest $WORKSPACE/patient-service
+        docker build -t order-service:latest $WORKSPACE/order-service
+        docker build -t appointment-service:latest $WORKSPACE/appointment-service
+
 
     # -----------------------------
     # LOAD IMAGES INTO KIND CLUSTER
