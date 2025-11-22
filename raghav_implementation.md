@@ -3,7 +3,7 @@
 ## Build images
 Build images locally (consider using buildx for multi-arch builds — see Troubleshooting).
 ```
-docker build -t app-service:latest .
+
 docker build -t patient-service:latest .
 docker build -t application-service:latest .
 docker build -t order-service:latest .
@@ -14,7 +14,7 @@ docker build -t order-service:latest .
 REPOSITORY           TAG     IMAGE ID       CREATED         SIZE
 patient-service      latest  3c391a50af42   3 minutes ago   136MB
 order-service        latest  dedf75859667   8 minutes ago   341MB
-appointment-service  latest  7286a207ed7f   34 minutes ago  133MB
+application-service  latest  7286a207ed7f   34 minutes ago  133MB
 ```
 
 ## Run containers (note port conflicts)
@@ -24,6 +24,12 @@ docker run -d -p 3000:3000 --name patient-service patient-service:latest
 docker run -d -p 8080:8080 --name order-service order-service:latest
 # Do not run another container with -p 3000:3000 unless you change the host port
 ```
+<img width="1015" height="177" alt="image" src="https://github.com/user-attachments/assets/6670ac14-6da7-4f2d-a953-f840bd7d6d66" />
+<img width="1379" height="186" alt="image" src="https://github.com/user-attachments/assets/6d0403ce-7125-4ef3-9967-27a2c484ea0e" />
+<img width="1230" height="187" alt="image" src="https://github.com/user-attachments/assets/d2877396-98e2-4a83-a643-91188649db98" />
+
+<img width="820" height="178" alt="image" src="https://github.com/user-attachments/assets/cc1bc66a-fa33-42e0-961a-68ba950e2960" />
+
 
 ## Create Artifact Registry (GCP)
 ```
@@ -45,6 +51,14 @@ docker push asia-south1-docker.pkg.dev/<PROJECT>/hcl-microservices/order-service
 ```
 Replace `<PROJECT>` with your GCP project ID.
 
+Artiftory location for images 
+<img width="1281" height="551" alt="image" src="https://github.com/user-attachments/assets/dee8be2b-26b4-43f0-8e73-f292d10b3245" />
+<img width="1315" height="513" alt="image" src="https://github.com/user-attachments/assets/5070ea42-ad2c-453d-8c66-24519ad9d736" />
+<img width="1424" height="508" alt="image" src="https://github.com/user-attachments/assets/e36330c5-38e1-4105-9ad7-05f397171609" />
+<img width="1369" height="549" alt="image" src="https://github.com/user-attachments/assets/3131e13c-9100-4fb7-b031-6bd67c7cd394" />
+
+
+
 ## Kubernetes (apply manifests)
 ```
 kubectl apply -f k8s/patient-service.yaml
@@ -60,6 +74,16 @@ application-service   NodePort 34.118.233.181   <none>        80:32072/TCP   65m
 order-service         NodePort 34.118.225.98    <none>        80:32747/TCP   65m
 patient-service       NodePort 34.118.231.205   <none>        80:30609/TCP   66m
 ```
+## Created GKE cluster but stuck with ARM64 Image issues during pod errors as i am using macbook pro M1
+<img width="1180" height="535" alt="image" src="https://github.com/user-attachments/assets/716bf0f3-78aa-4a8f-8cf3-92e6babc213d" />
+PODS issues in workfloads
+<img width="1128" height="618" alt="image" src="https://github.com/user-attachments/assets/60204b48-7841-4460-95e7-ab4c26681570" />
+INGRESS Created but having error 
+
+
+<img width="1325" height="505" alt="image" src="https://github.com/user-attachments/assets/ef8bcf08-9022-47e3-af95-cc65b55d1942" />
+
+with above issues i am going for KIND cluster creation 
 
 ## Kind cluster
 Create a kind cluster:
