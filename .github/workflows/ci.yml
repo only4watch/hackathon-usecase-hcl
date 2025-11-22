@@ -1,0 +1,96 @@
+name: Hackathon CI/CD
+
+on:
+  push:
+    branches:
+      - raghav-demo
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # -----------------------------
+    # CHECKOUT THE CODE
+    # -----------------------------
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # -----------------------------
+    # INSTALL TERRAFORM
+    # -----------------------------
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.7.5
+
+    # -----------------------------
+    # INSTALL KIND + KUBECTL
+    # -----------------------------
+    - name: Install KIND
+      run: |
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+        chmod +x ./kind
+        sudo mv ./kind /usr/local/bin/kind
+
+    - name: Install kubectl
+      run: |
+        curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+
+    # -----------------------------
+    # CREATE KIND CLUSTER WITH TERRAFORM
+    # -----------------------------
+    - name: Terraform Init
+      working-directory: terraform
+      run: terraform init
+
+    - name: Terraform Apply - Create KIND cluster
+      working-directory: terraform
+      run: terraform apply -auto-approve
+
+    # -----------------------------
+    # BUILD DOCKER IMAGES FOR 3 SERVICES
+    # -----------------------------
+    - name: Build Docker images
+      run: |
+        docker build -t patient-service:latest ./patient-service
+        docker build -t order-service:latest ./order-service
+        docker build -t appointment-service:latest ./appointment-service
+
+    # -----------------------------
+    # LOAD IMAGES INTO KIND CLUSTER
+    # -----------------------------
+    - name: Load Docker images into KIND (hcl-hackathon)
+      run: |
+        kind load docker-image patient-service:latest --name hcl-hackathon
+        kind load docker-image order-service:latest --name hcl-hackathon
+        kind load docker-image appointment-service:latest --name hcl-hackathon
+
+    # -----------------------------
+    # VALIDATE KUBECTL CONTEXT
+    # -----------------------------
+    - name: Verify kubectl access
+      run: kubectl get nodes
+
+    # -----------------------------
+    # APPLY ALL K8S MANIFESTS
+    # -----------------------------
+    - name: Deploy Kubernetes manifests
+      run: |
+       
+        kubectl apply -f k8s/patient-service.yaml
+        kubectl apply -f k8s/application-service.yaml
+        kubectl apply -f k8s/order-service.yaml
+        kubectl apply -f k8s/ingress.yaml   
+
+    # -----------------------------
+    # VERIFY DEPLOYMENTS
+    # -----------------------------
+    - name: Check Deployments
+      run: |
+        kubectl get pods -A
+        kubectl get svc -A
+        kubectl get ingress -A
