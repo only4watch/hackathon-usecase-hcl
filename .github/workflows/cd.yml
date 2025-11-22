@@ -82,7 +82,7 @@ jobs:
     - name: Get GKE credentials
       uses: google-github-actions/get-gke-credentials@v2
       with:
-        cluster_name: "gke-hackathon"
+        cluster_name: "hackathon-cluster"
         location: ${{ secrets.REGION }}
         project_id: ${{ secrets.PROJECT_ID }}
 
