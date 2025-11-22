@@ -83,7 +83,7 @@ jobs:
       uses: google-github-actions/get-gke-credentials@v2
       with:
         cluster_name: "hackathon-cluster"
-        location: ${{ secrets.REGION }}
+        location: "asia-south1"
         project_id: ${{ secrets.PROJECT_ID }}
 
     # =============================
