@@ -57,21 +57,21 @@ jobs:
     # =============================
     - name: Build & Push patient-service
       run: |
-        IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/patient-service:latest"
+        IMAGE="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/hcl/patient-service:latest"
         cd $GITHUB_WORKSPACE/patient-service/src
         docker build -t "$IMAGE" ./patient-service
         docker push "$IMAGE"
 
     - name: Build & Push order-service
       run: |
-        IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/order-service:latest"
+        IMAGE="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/hcl/order-service:latest"
         cd $GITHUB_WORKSPACE/order-service
         docker build -t "$IMAGE" ./order-service
         docker push "$IMAGE"
 
     - name: Build & Push application-service
       run: |
-        IMAGE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPO }}/application-service:latest"
+        IMAGE="${{ secrets.REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/hcl/application-service:latest"
         cd $GITHUB_WORKSPACE/application-service/src
         docker build -t "$IMAGE" ./application-service
         docker push "$IMAGE"
@@ -83,8 +83,8 @@ jobs:
       uses: google-github-actions/get-gke-credentials@v2
       with:
         cluster_name: "gke-hackathon"
-        location: ${{ env.REGION }}
-        project_id: ${{ env.PROJECT_ID }}
+        location: ${{ secrets.REGION }}
+        project_id: ${{ secrets.PROJECT_ID }}
 
     # =============================
     # DEPLOY K8s MANIFESTS
