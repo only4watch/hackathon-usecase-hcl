@@ -95,6 +95,7 @@ If using Kind with ingress, install the ingress controller (example using ingres
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/kind/deploy.yaml
 ```
+<img width="829" height="236" alt="image" src="https://github.com/user-attachments/assets/b17640b3-c07e-4155-8e73-3b81a17eb049" />
 
 ## Observed issues & troubleshooting
 - ARM64 image issues:
